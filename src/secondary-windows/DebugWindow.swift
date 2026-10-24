@@ -64,13 +64,13 @@ class DebugWindow: NSPanel {
 
     private func setupView() {
         // Inspect section
-        inspectButton = NSButton(title: "Inspect window", target: nil, action: nil)
+        inspectButton = NSButton(title: "Исследовать окно", target: nil, action: nil)
         inspectButton.translatesAutoresizingMaskIntoConstraints = false
         inspectButton.bezelStyle = .rounded
         inspectButton.onAction = { [weak self] _ in self?.toggleInspect() }
-        inspectAppField = Self.makeInspectColumn("App", ["Name", "BundleID", "PID"])
-        inspectCgField = Self.makeInspectColumn("Window (CG API)", ["Title", "WID", "Level (kCGWindowLayer)", "Level (CGSGetWindowLevel)", "Size", "Position", "Alpha", "IsOnScreen"])
-        inspectAxField = Self.makeInspectColumn("Window (AX API)", ["Title", "Role", "Subrole", "Minimized", "Fullscreen", "Size", "Position"])
+        inspectAppField = Self.makeInspectColumn("Приложение", ["Имя", "BundleID", "PID"])
+        inspectCgField = Self.makeInspectColumn("Окно (CG API)", ["Заголовок", "WID", "Level (kCGWindowLayer)", "Level (CGSGetWindowLevel)", "Размер", "Положение", "Прозрачность", "IsOnScreen"])
+        inspectAxField = Self.makeInspectColumn("Окно (AX API)", ["Заголовок", "Роль", "Подроль", "Свернуто", "Полный экран", "Размер", "Положение"])
         inspectColumns = NSStackView(views: [inspectAppField, inspectCgField, inspectAxField])
         inspectColumns.translatesAutoresizingMaskIntoConstraints = false
         inspectColumns.orientation = .horizontal
@@ -78,9 +78,9 @@ class DebugWindow: NSPanel {
         inspectColumns.spacing = 16
         inspectColumns.distribution = .fillEqually
         // Log header and filter
-        let filterLabel = NSTextField(labelWithString: "Log Level:")
+        let filterLabel = NSTextField(labelWithString: "Уровень журнала:")
         filterLabel.translatesAutoresizingMaskIntoConstraints = false
-        filterControl = NSSegmentedControl(labels: ["Debug", "Info", "Warning", "Error"],
+        filterControl = NSSegmentedControl(labels: ["Отладка", "Инфо", "Предупреждение", "Ошибка"],
                                            trackingMode: .selectOne, target: nil, action: nil)
         filterControl.translatesAutoresizingMaskIntoConstraints = false
         filterControl.selectedSegment = 0
@@ -89,7 +89,7 @@ class DebugWindow: NSPanel {
             filterControl.setImage(Self.colorDot(Self.colorForLevel(Self.levels[i])), forSegment: i)
             filterControl.setImageScaling(.scaleProportionallyDown, forSegment: i)
         }
-        windowAdmissionCheckbox = NSButton(checkboxWithTitle: "Accepted/Rejected windows", target: nil, action: nil)
+        windowAdmissionCheckbox = NSButton(checkboxWithTitle: "Принятые/отклонённые окна", target: nil, action: nil)
         windowAdmissionCheckbox.translatesAutoresizingMaskIntoConstraints = false
         windowAdmissionCheckbox.onAction = { [weak self] _ in self?.windowAdmissionFilterChanged() }
         let filterRow = NSStackView(views: [filterLabel, filterControl, windowAdmissionCheckbox])
@@ -121,7 +121,7 @@ class DebugWindow: NSPanel {
                                                name: NSView.boundsDidChangeNotification,
                                                object: scrollView.contentView)
         // Copy-all-logs button, floating over the top-right corner of the log view
-        copyLogsButton = NSButton(title: "Copy all", target: nil, action: nil)
+        copyLogsButton = NSButton(title: "Скопировать всё", target: nil, action: nil)
         copyLogsButton.translatesAutoresizingMaskIntoConstraints = false
         copyLogsButton.bezelStyle = .rounded
         copyLogsButton.controlSize = .small
@@ -132,7 +132,7 @@ class DebugWindow: NSPanel {
         // Inspect group box
         let inspectBox = NSBox()
         inspectBox.translatesAutoresizingMaskIntoConstraints = false
-        inspectBox.title = "Inspect"
+        inspectBox.title = "Исследование"
         inspectBox.contentView = NSView()
         inspectBox.contentView!.addSubview(inspectButton)
         inspectBox.contentView!.addSubview(inspectColumns)
@@ -147,7 +147,7 @@ class DebugWindow: NSPanel {
         // Log group box
         let logBox = NSBox()
         logBox.translatesAutoresizingMaskIntoConstraints = false
-        logBox.title = "Logs"
+        logBox.title = "Журнал"
         logBox.contentView = NSView()
         logBox.contentView!.addSubview(filterRow)
         logBox.contentView!.addSubview(scrollView)
@@ -256,12 +256,12 @@ class DebugWindow: NSPanel {
         NSPasteboard.general.clearContents()
         NSPasteboard.general.setString(text, forType: .string)
         // brief "Copied!" confirmation, like the copy buttons on code blocks
-        copyLogsButton.title = "Copied!"
+        copyLogsButton.title = "Скопировано!"
         copyLogsButton.image = NSImage(systemSymbolName: "checkmark", accessibilityDescription: nil)
         copyFeedbackTimer?.invalidate()
         copyFeedbackTimer = Timer.scheduledTimer(withTimeInterval: 1.2, repeats: false) { [weak self] _ in
             guard let self else { return }
-            self.copyLogsButton.title = "Copy all"
+            self.copyLogsButton.title = "Скопировать всё"
             self.copyLogsButton.image = NSImage(systemSymbolName: "doc.on.doc", accessibilityDescription: nil)
         }
     }
@@ -298,7 +298,7 @@ class DebugWindow: NSPanel {
         clearInspectData()
         copyFeedbackTimer?.invalidate()
         copyFeedbackTimer = nil
-        copyLogsButton.title = "Copy all"
+        copyLogsButton.title = "Скопировать всё"
         copyLogsButton.image = NSImage(systemSymbolName: "doc.on.doc", accessibilityDescription: nil)
         entries.removeAll()
         textView.textStorage?.setAttributedString(NSAttributedString())
@@ -317,7 +317,7 @@ class DebugWindow: NSPanel {
 
     private func startInspecting() {
         isInspecting = true
-        inspectButton.title = "Stop inspecting"
+        inspectButton.title = "Остановить исследование"
         updateInspectData()
         // Mouse moves, not a timer: nothing runs while the pointer rests. Global monitors see moves over other
         // apps, the local one over AltTab's own windows.
@@ -337,7 +337,7 @@ class DebugWindow: NSPanel {
     private func stopInspecting() {
         guard isInspecting else { return }
         isInspecting = false
-        inspectButton.title = "Inspect window"
+        inspectButton.title = "Исследовать окно"
         inspectMonitors.forEach(NSEvent.removeMonitor)
         inspectMonitors.removeAll()
     }
@@ -373,8 +373,8 @@ class DebugWindow: NSPanel {
             appName = app?.localizedName ?? "-"
             appBundleId = app?.bundleIdentifier ?? "-"
         }
-        inspectAppField.stringValue = Self.formatColumn("App", [
-            ("Name", appName), ("BundleID", appBundleId), ("PID", pidStr),
+        inspectAppField.stringValue = Self.formatColumn("Приложение", [
+            ("Имя", appName), ("BundleID", appBundleId), ("PID", pidStr),
         ])
         // CG column
         let cgTitle = found.title() ?? "-"
@@ -386,10 +386,10 @@ class DebugWindow: NSPanel {
         let cgPos = bounds.map { "\(Int($0.origin.x)),\(Int($0.origin.y))" } ?? "-"
         let alpha = (found[kCGWindowAlpha] as? Double).map { "\($0)" } ?? "-"
         let isOnScreen = (found[kCGWindowIsOnscreen] as? Bool).map { "\($0)" } ?? "-"
-        inspectCgField.stringValue = Self.formatColumn("Window (CG API)", [
-            ("Title", cgTitle), ("WID", widStr),
+        inspectCgField.stringValue = Self.formatColumn("Окно (CG API)", [
+            ("Заголовок", cgTitle), ("WID", widStr),
             ("Level (kCGWindowLayer)", cgLayer), ("Level (CGSGetWindowLevel)", cgsLevel),
-            ("Size", cgSize), ("Position", cgPos), ("Alpha", alpha), ("IsOnScreen", isOnScreen),
+            ("Размер", cgSize), ("Положение", cgPos), ("Прозрачность", alpha), ("IsOnScreen", isOnScreen),
         ])
         // AX column
         var axTitle = "-"
@@ -419,21 +419,21 @@ class DebugWindow: NSPanel {
                 }
             }
         }
-        inspectAxField.stringValue = Self.formatColumn("Window (AX API)", [
-            ("Title", axTitle), ("Role", axRole), ("Subrole", axSubrole),
-            ("Minimized", axMinimized), ("Fullscreen", axFullscreen),
-            ("Size", axSize), ("Position", axPosition),
+        inspectAxField.stringValue = Self.formatColumn("Окно (AX API)", [
+            ("Заголовок", axTitle), ("Роль", axRole), ("Подроль", axSubrole),
+            ("Свернуто", axMinimized), ("Полный экран", axFullscreen),
+            ("Размер", axSize), ("Положение", axPosition),
         ])
     }
 
     private func clearInspectData() {
-        inspectAppField.stringValue = Self.formatColumn("App", [("Name", "-"), ("BundleID", "-"), ("PID", "-")])
-        inspectCgField.stringValue = Self.formatColumn("Window (CG API)", [
-            ("Title", "-"), ("WID", "-"), ("Level (kCGWindowLayer)", "-"), ("Level (CGSGetWindowLevel)", "-"),
-            ("Size", "-"), ("Position", "-"), ("Alpha", "-"), ("IsOnScreen", "-"),
+        inspectAppField.stringValue = Self.formatColumn("Приложение", [("Имя", "-"), ("BundleID", "-"), ("PID", "-")])
+        inspectCgField.stringValue = Self.formatColumn("Окно (CG API)", [
+            ("Заголовок", "-"), ("WID", "-"), ("Level (kCGWindowLayer)", "-"), ("Level (CGSGetWindowLevel)", "-"),
+            ("Размер", "-"), ("Положение", "-"), ("Прозрачность", "-"), ("IsOnScreen", "-"),
         ])
-        inspectAxField.stringValue = Self.formatColumn("Window (AX API)", [
-            ("Title", "-"), ("Role", "-"), ("Subrole", "-"), ("Minimized", "-"), ("Fullscreen", "-"), ("Size", "-"), ("Position", "-"),
+        inspectAxField.stringValue = Self.formatColumn("Окно (AX API)", [
+            ("Заголовок", "-"), ("Роль", "-"), ("Подроль", "-"), ("Свернуто", "-"), ("Полный экран", "-"), ("Размер", "-"), ("Положение", "-"),
         ])
     }
 
